@@ -4,5 +4,5 @@ from flask import render_template
 
 @app.route("/")
 def hello():
-    # a = SpeechToTranslate(input_lang="en", output_lang="hin_Deva")
+    a = "ronak"
     return render_template("home.html")
