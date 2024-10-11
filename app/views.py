@@ -1,5 +1,5 @@
 from app import app
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from s2translation import SpeechToTranslate
 from threading import Thread
 
@@ -18,3 +18,9 @@ def transcription():
     
     transcribing = Thread(target=s2t.transcription)
     transcribing.start()
+
+    while s2t.transcribed_text.empty():
+        continue
+    
+    s2t.stop_recording()
+    return jsonify({"transcript": s2t.transcribed_text.get()})

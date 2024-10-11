@@ -6,7 +6,7 @@ let full_transcript = ''
 
 recordButton.addEventListener('click', () => {
     if (!isRecording) {
-        // startRecording()
+        startRecording()
         recordButton.textContent = 'Stop Recording'
     } else {
         // stopRecording()

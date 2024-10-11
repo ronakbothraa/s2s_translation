@@ -107,4 +107,7 @@ class SpeechToTranslate:
         torch.cuda.empty_cache()
         print("Translated Text: ", " ".join(self.translated_text))
 
-        
+
+if __name__ == "__main__":
+    a = SpeechToTranslate(input_lang="en", output_lang="hin_Deva")
+    a.start_recording()
