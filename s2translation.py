@@ -20,7 +20,7 @@ class SpeechToTranslate:
         self.RECORD_SECONDS = 3
         self.FORMAT = pyaudio.paInt16
 
-        self.transcription_model = WhisperModel("large-v3", device="cuda" if torch.cuda.is_available() else "cpu", compute_type="float16" if torch.cuda.is_available() else "int8")
+        self.transcription_model = WhisperModel("medium", device="cuda" if torch.cuda.is_available() else "cpu", compute_type="float16" if torch.cuda.is_available() else "int8")
 
         self.translated_text = []
         self.tokenizer = AutoTokenizer.from_pretrained("facebook/nllb-200-distilled-600M")
@@ -104,6 +104,7 @@ class SpeechToTranslate:
 
     def stop_recording(self):
         self.messages.get()
+        torch.cuda.empty_cache()
         print("Translated Text: ", " ".join(self.translated_text))
 
         
