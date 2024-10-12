@@ -10,7 +10,7 @@
     <div class="col-md-4">
       <label for="inp_lang">Input Language</label>
       <select class="form-select" id="inputLanguage">
-        <option selected>Select Input Language</option>
+        <option selected>Select Input</option>
         {% for language_code, language in input_languages.items() %}
           <option value="{{ language_code }}">{{ language }}</option>
         {% endfor %}
@@ -20,7 +20,7 @@
     <div class="col-md-4">
       <label for="out_lang">Output Language</label>
       <select class="form-select" id="outputLanguage">
-        <option selected>Select Output Language</option>
+        <option selected>Select Output</option>
         {% for language_code, language in output_languages.items() %}
           <option value="{{ language_code }}">{{ language }}</option>
         {% endfor %}

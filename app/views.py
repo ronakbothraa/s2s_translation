@@ -30,7 +30,6 @@ def start_process():
     transcribing = Thread(target=s2t.transcript)
     transcribing.start()
     
-    print("started")
     return "started recording"
 
 @app.route("/stop", methods=["POST"])
