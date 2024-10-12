@@ -1,13 +1,21 @@
 const recordButton = document.getElementById('recordButton')
 const transriptDiv = document.getElementById('transcript')
 const translateDiv = document.getElementById('translate')
+const inputLanguage = document.getElementById('inputLanguage')
+const outputLanguage = document.getElementById('outputLanguage')
 
+
+document.getElementById("inputLanguage").options[19].selected = 'selected'
+document.getElementById("outputLanguage").options[1].selected = 'selected'
 let isRecording = false
 let full_transcript = ''
 
 recordButton.addEventListener('click', () => {
     isRecording = !isRecording
     if (isRecording) {
+        full_transcript = ""
+        transriptDiv.textContent = ""
+        translateDiv.textContent = ""
         startRecording()
         transcript()
         translate()
@@ -20,7 +28,14 @@ recordButton.addEventListener('click', () => {
 
 async function startRecording() {
     await fetch('/start', {
-        method: 'POST'
+        method: 'POST',
+        body: JSON.stringify({
+            inputLanguage: inputLanguage.options[inputLanguage.selectedIndex].value,
+            outputLanguage: outputLanguage.options[outputLanguage.selectedIndex].value
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        },
     })
 }
 

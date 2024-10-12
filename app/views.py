@@ -1,18 +1,28 @@
 from app import app
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, make_response
 from s2translation import SpeechToTranslate
 from threading import Thread
 
 
 s2t = SpeechToTranslate(input_lang="en", output_lang="hin_Deva")
 @app.route("/")
-def index(languages=s2t.languages):
-    return render_template("public/home.html", languages=languages)
+def index():
+    return render_template("public/home.html", 
+                           output_languages=s2t.output_languages, 
+                           input_languages=s2t.input_languages)
 
 @app.route("/start", methods=["POST"])
 def start_process():
+    data = request.get_json()
+
+    s2t.input_lang = data.get('inputLanguage')
+    s2t.output_lang = data.get('outputLanguage')
+    print(s2t.input_lang, s2t.output_lang)
+
     s2t.transcribed_text.queue.clear()
     s2t.translated_text.queue.clear()
+    s2t.full_transcribed_text = []
+
     s2t.messages.put(True)
 
     recording = Thread(target=s2t.record_microphone)
@@ -20,8 +30,9 @@ def start_process():
     
     transcribing = Thread(target=s2t.transcript)
     transcribing.start()
+    
 
-    return "nothing"
+    return make_response(jsonify({"message": "received"}), 200)
 
 @app.route("/stop", methods=["POST"])
 def stop_process():

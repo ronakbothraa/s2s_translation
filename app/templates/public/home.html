@@ -9,9 +9,9 @@
 
     <div class="col-md-4">
       <label for="inp_lang">Input Language</label>
-      <select class="form-select" id="inp_lang">
+      <select class="form-select" id="inputLanguage">
         <option selected>Select Input Language</option>
-        {% for language_code, language in languages.items() %}
+        {% for language_code, language in input_languages.items() %}
           <option value="{{ language_code }}">{{ language }}</option>
         {% endfor %}
       </select>
@@ -19,9 +19,9 @@
 
     <div class="col-md-4">
       <label for="out_lang">Output Language</label>
-      <select class="form-select" id="out_lang">
+      <select class="form-select" id="outputLanguage">
         <option selected>Select Output Language</option>
-        {% for language_code, language in languages.items() %}
+        {% for language_code, language in output_languages.items() %}
           <option value="{{ language_code }}">{{ language }}</option>
         {% endfor %}
       </select>
@@ -52,7 +52,7 @@
     </div>
   
     <div class="col-12">
-      <button class="btn btn-primary" id="recordButton">Start Recording</button>
+      <button class="btn btn-primary" id="recordButton">Start Talking</button>
     </div>
   </div>
 </div>
