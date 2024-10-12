@@ -1,16 +1,58 @@
 {% extends "public/templates/public_template.html" %} 
 {% block title %} Home {% endblock %} 
+
 {% block content %}
 <!-- class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4" -->
 <div class="container">
-  <div class="row">
-    <div class="col">
-        <button class="btn btn-primary" id="recordButton">Start Recording</button>
-        <textarea
-            id="transcript"
-            rows="10"
-            class="bg-white shadow-md rounded-lg w-1/2 px-4"
-        ></textarea>
+  
+  <div class="row g-3">
+
+    <div class="col-md-4">
+      <label for="inp_lang">Input Language</label>
+      <select class="form-select" id="inp_lang">
+        <option selected>Select Input Language</option>
+        {% for language_code, language in languages.items() %}
+          <option value="{{ language_code }}">{{ language }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="out_lang">Output Language</label>
+      <select class="form-select" id="out_lang">
+        <option selected>Select Output Language</option>
+        {% for language_code, language in languages.items() %}
+          <option value="{{ language_code }}">{{ language }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  
+    <div class="form-floating mb-3 col-md-6">
+      <textarea
+      class="form-control"
+      placeholder="Leave a comment here"
+      id="transcript"
+      style="height: 100px"
+      disabled
+      >
+      </textarea>
+      <label for="transcript">transcription...</label>
+    </div>
+
+    <div class="form-floating mb-3 col-md-6">
+      <textarea
+      class="form-control"
+      placeholder="Leave a comment here"
+      id="translate"
+      style="height: 100px"
+      disabled
+      >
+      </textarea>
+      <label for="translate">translation...</label>
+    </div>
+  
+    <div class="col-12">
+      <button class="btn btn-primary" id="recordButton">Start Recording</button>
     </div>
   </div>
 </div>
