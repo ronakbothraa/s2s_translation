@@ -4,25 +4,28 @@ const translateDiv = document.getElementById('translate')
 const inputLanguage = document.getElementById('inputLanguage')
 const outputLanguage = document.getElementById('outputLanguage')
 
-
+transriptDiv.textContent = "Transcript: "
+translateDiv.textContent = "Translation: "
 document.getElementById("inputLanguage").options[19].selected = 'selected'
 document.getElementById("outputLanguage").options[1].selected = 'selected'
 let isRecording = false
-let full_transcript = ''
+let full_transcript = 'Transcript: '
 
 recordButton.addEventListener('click', () => {
     isRecording = !isRecording
     if (isRecording) {
-        full_transcript = ""
-        transriptDiv.textContent = ""
-        translateDiv.textContent = ""
+        full_transcript = 'Transcript: '
+        transriptDiv.textContent = "Transcript: "
+        translateDiv.textContent = "Translation: "
         startRecording()
         transcript()
         translate()
-        recordButton.textContent = 'Stop Recording'
+        recordButton.textContent = 'Stop Talking'
+        recordButton.className = "btn btn-danger"
     } else {
         stopRecording()
-        recordButton.textContent = 'Start Recording'
+        recordButton.className = "btn btn-primary"
+        recordButton.textContent = 'Start Talking'
     }
 })
 
@@ -51,24 +54,16 @@ async function transcript() {
             transriptDiv.textContent = full_transcript
         }
     }
-    
 }
 
 async function translate() {
-    while (isRecording) {
+    while (true) {
         const translation_response = await fetch('/translate', {
             method: 'POST'
         })
         const translated_data = await translation_response.json()
-        console.log("translated: ", translated_data.translation)
-        translateDiv.textContent = translated_data.translation
+        translateDiv.textContent = "Translation: " + translated_data.translation
     }
-    const translation_response = await fetch('/translate', {
-        method: 'POST'
-    })
-    const translated_data = await translation_response.json()
-    console.log("translated: ", translated_data.translation)
-    translateDiv.textContent = translated_data.translation
 }
 
 async function stopRecording() {
