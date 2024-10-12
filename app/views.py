@@ -9,8 +9,8 @@ s2t = SpeechToTranslate(input_lang="en", output_lang="hin_Deva")
 def index():
     return render_template("public/home.html")
 
-@app.route("/process", methods=["POST"])
-def transcription():
+@app.route("/start", methods=["POST"])
+def start_process():
     s2t.messages.put(True)
 
     recording = Thread(target=s2t.record_microphone)
@@ -18,9 +18,14 @@ def transcription():
     
     transcribing = Thread(target=s2t.transcription)
     transcribing.start()
+    return "something"
 
-    while s2t.transcribed_text.empty():
-        continue
-    
+@app.route("/stop", methods=["POST"])
+def stop_process():
     s2t.stop_recording()
-    return jsonify({"transcript": s2t.transcribed_text.get()})
+    return "something"
+
+@app.route("/process", methods=["POST"])
+def transcription():
+    a = s2t.transcribed_text.get()
+    return jsonify({"transcript": a})
