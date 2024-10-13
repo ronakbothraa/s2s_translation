@@ -1,9 +1,7 @@
-import pyaudio, wave, os, torch, keyboard
-import numpy as np
+import pyaudio, wave, os, torch
 from faster_whisper import WhisperModel
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from queue import Queue
-from threading import Thread
 
 class SpeechToTranslate:
     def __init__(self, input_lang, output_lang):
@@ -13,6 +11,8 @@ class SpeechToTranslate:
         self.messages = Queue()
         self.recordings = Queue()
         self.transcribed_text = Queue()
+        self.translated_text = Queue()
+        self.full_translated_text = []
         self.full_transcribed_text = []
 
         self.CHANNELS = 1
@@ -22,7 +22,6 @@ class SpeechToTranslate:
 
         self.transcription_model = WhisperModel("large-v3", device="cuda" if torch.cuda.is_available() else "cpu", compute_type="float16" if torch.cuda.is_available() else "int8")
 
-        self.translated_text = Queue()
         self.tokenizer = AutoTokenizer.from_pretrained("facebook/nllb-200-distilled-600M")
         self.translation_model = AutoModelForSeq2SeqLM.from_pretrained("facebook/nllb-200-distilled-600M")
 
@@ -73,9 +72,6 @@ class SpeechToTranslate:
             self.transcribed_text.put(text)
             print(f"live transcription: ", text)
             os.remove(f"audio.wav")
-            
-            if keyboard.is_pressed('q'):
-                self.stop_recording()
 
     def translate(self, trnscrpt=""):
         inputs = self.tokenizer(trnscrpt, return_tensors="pt", padding=True, truncation=True).to("cuda")
@@ -83,29 +79,11 @@ class SpeechToTranslate:
         outputs = self.translation_model.generate(**inputs, forced_bos_token_id=self.tokenizer.convert_tokens_to_ids(self.output_lang))
         outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
         self.translated_text.put(outputs)
-
-
-    def start_recording(self):
-        self.messages.put(True)
-
-        print("Start Recording:")
-        recording = Thread(target=self.record_microphone)
-        recording.start()
-        
-        transcribing = Thread(target=self.transcript)
-        transcribing.start()
-
-        translation = Thread(target=self.translate, args=())
-        translation.start()
-
+        self.full_translated_text = [outputs]
 
     def stop_recording(self):
         self.messages.get()
         torch.cuda.empty_cache()
-        print("input: ", " ".join(self.full_transcribed_text))
+        print("Speech: ", " ".join(self.full_transcribed_text))
+        print("Translated Text: ", " ".join(self.translated_text))
         # print("Translated Text: ", " ".join(self.translated_text))
-
-
-if __name__ == "__main__":
-    a = SpeechToTranslate(input_lang="en", output_lang="hin_Deva")
-    a.start_recording()
