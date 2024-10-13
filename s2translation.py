@@ -13,8 +13,8 @@ class SpeechToTranslate:
         self.recordings = Queue()
         self.transcribed_text = Queue()
         self.translated_text = Queue()
-        self.full_transcribed_text = Queue()
-        self.full_translated_text = Queue()
+        self.transcribed_text_copy = Queue()
+        self.full_transcribed_text = []
 
         self.CHANNELS = 1
         self.FRAME_RATE = 16000
@@ -70,13 +70,15 @@ class SpeechToTranslate:
 
             segments, _ = self.transcription_model.transcribe(audio_file_path, beam_size=5, language=self.input_lang)
             text = " ".join([segment.text for segment in segments])
-            self.full_transcribed_text.put(text)
+            self.full_transcribed_text.append(text)
+            self.transcribed_text_copy.put(text)
             self.transcribed_text.put(text)
             print(f"live transcription: ", text)
 
     def translate(self, trnscrpt=""):
         while (not self.messages.empty() or not self.transcribed_text.empty()):
             trnscrpt = self.transcribed_text.get()
+            trnscrpt = " ".join(self.full_transcribed_text)
             inputs = self.tokenizer(trnscrpt, return_tensors="pt", padding=True, truncation=True).to("cuda")
             inputs = {k: inputs[k].to(self.translation_model.device) for k in inputs}
             outputs = self.translation_model.generate(**inputs, forced_bos_token_id=self.tokenizer.convert_tokens_to_ids(self.output_lang))
@@ -87,8 +89,8 @@ class SpeechToTranslate:
         self.recordings.queue.clear()
         self.transcribed_text.queue.clear()
         self.translated_text.queue.clear()
-        self.full_transcribed_text.queue.clear()
-        self.full_translated_text.queue.clear()
+        self.transcribed_text_copy.queue.clear()
+        self.full_transcribed_text = []
 
         self.messages.put(True)
 

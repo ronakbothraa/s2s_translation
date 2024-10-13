@@ -17,8 +17,6 @@ def start():
     s2t.output_lang = data.get('outputLanguage')
     
     s2t.start_recording()
-    
-    print("started")
     return jsonify({"transcript": "started"})
 
 @app.route("/stop", methods=["POST"])
@@ -29,9 +27,8 @@ def stop_process():
 @app.route("/transcript", methods=["POST"])
 def transcription():
     isRecording = request.get_json().get("isRecording")
-    print(isRecording, ": isRecording in transcription function/route")
     if (not s2t.transcribed_text.empty() or not s2t.recordings.empty() or isRecording):
-        a = s2t.full_transcribed_text.get()
+        a = s2t.transcribed_text_copy.get()
         return jsonify({"transcript": a})
     return jsonify({"transcript": False})
 
@@ -39,8 +36,8 @@ def transcription():
 @app.route("/translate", methods=["POST"])
 def translation():
     isRecording = request.get_json().get("isRecording")
-    print(isRecording, ": isRecording in translation function/route")
     if (not s2t.translated_text.empty() or not s2t.transcribed_text.empty() or isRecording):
+        print("if this is being printed, fix something.")
         a = s2t.translated_text.get()
         return jsonify({"translation": a})
     return jsonify({"translation": False})

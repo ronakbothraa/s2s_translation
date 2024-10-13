@@ -15,55 +15,64 @@ let isRecording = false
 recordButton.addEventListener('click', () => {
     isRecording = !isRecording
     if (isRecording) {
+        speakButton.disabled = true
+        resetButton.disabled = true
         transriptDiv.textContent = "Transcript: "
         translateDiv.textContent = "Translation: "
-        startRecording()
+        start()
         transcript()
         translate()
         recordButton.textContent = 'Stop Talking'
         recordButton.className = "btn btn-danger"
     } else {
-        stopRecording()
+        stop()
         recordButton.className = "btn btn-primary"
         recordButton.textContent = 'Start Talking'
+        speakButton.disabled = false
+        resetButton.disabled = false
     }
 })
 
 
-async function loading_button(button, condition=false, till=0){
-    time = 1;
-    buttonContent = button.innerHTML;
+resetButton.addEventListener('click', () => {
+    transriptDiv.textContent = "Transcript: "
+    translateDiv.textContent = "Translation: "
+})
+
+// async function loading_button(button, condition=false, till=0){
+//     time = 1;
+//     buttonContent = button.innerHTML;
     
-    button.disabled = true; 
-    button.innerHTML = `Starting: ${time}s`;
-    var timerInterval = setInterval(function () {
-        time++; 
-        button.innerHTML = `Starting: ${time}s`;
+//     button.disabled = true; 
+//     button.innerHTML = `Starting: ${time}s`;
+//     var timerInterval = setInterval(function () {
+//         time++; 
+//         button.innerHTML = `Starting: ${time}s`;
 
-        if (!condition && time > till) {
-            clearInterval(timerInterval);
-            button.innerHTML = buttonContent;
-            button.disabled = false;
-        }
-    }, 1000);
-}
+//         if (!condition && time > till) {
+//             clearInterval(timerInterval);
+//             button.innerHTML = buttonContent;
+//             button.disabled = false;
+//         }
+//     }, 1000);
+// }
 
-speakButton.addEventListener('click', () => {
-    loading_button(speakButton, false, till=5)
-    // output = fetch('/generate_tts', {
-    //     method: 'POST',
-    //     body: JSON.stringify({
-    //         input: translateDiv.textContent
-    //     }),
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     },
-    // })
-    // const msg = new SpeechSynthesisUtterance(full_transcript)
-    // window.speechSynthesis.speak(msg)
-})  
+// speakButton.addEventListener('click', () => {
+//     loading_button(speakButton, false, till=5)
+//     // output = fetch('/generate_tts', {
+//     //     method: 'POST',
+//     //     body: JSON.stringify({
+//     //         input: translateDiv.textContent
+//     //     }),
+//     //     headers: {
+//     //         'Content-Type': 'application/json'
+//     //     },
+//     // })
+//     // const msg = new SpeechSynthesisUtterance(full_transcript)
+//     // window.speechSynthesis.speak(msg)
+// })  
 
-function startRecording() {
+function start() {
     a = fetch('/start', {
         method: 'POST',
         body: JSON.stringify({
@@ -113,7 +122,7 @@ async function translate() {
         const translated_data = await translation_response.json()
         if (translated_data.translation != false) {
             console.log(translated_data)
-            translateDiv.textContent += translated_data.translation
+            translateDiv.textContent = translated_data.translation
         } else {
             console.log(translated_data)
             break
@@ -121,7 +130,7 @@ async function translate() {
     }
 }
 
-async function stopRecording() {
+async function stop() {
     await fetch('/stop', {
         method: 'POST'
     })
