@@ -2,6 +2,7 @@ import pyaudio, wave, os, torch
 from faster_whisper import WhisperModel
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from queue import Queue
+from threading import Thread
 
 class SpeechToTranslate:
     def __init__(self, input_lang, output_lang):
@@ -81,6 +82,24 @@ class SpeechToTranslate:
             outputs = self.translation_model.generate(**inputs, forced_bos_token_id=self.tokenizer.convert_tokens_to_ids(self.output_lang))
             outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
             self.translated_text.put(outputs)
+        
+    def start_recording(self):
+        self.recordings.queue.clear()
+        self.transcribed_text.queue.clear()
+        self.translated_text.queue.clear()
+        self.full_transcribed_text.queue.clear()
+        self.full_translated_text.queue.clear()
+
+        self.messages.put(True)
+
+        recording = Thread(target=self.record_microphone)
+        recording.start()
+
+        transcribing = Thread(target=self.transcript)
+        transcribing.start()
+
+        translation = Thread(target=self.translate)
+        translation.start()
 
     def stop_recording(self):
         self.messages.get()

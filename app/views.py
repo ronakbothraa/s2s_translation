@@ -16,22 +16,7 @@ def start():
     s2t.input_lang = data.get('inputLanguage')
     s2t.output_lang = data.get('outputLanguage')
     
-    s2t.recordings.queue.clear()
-    s2t.transcribed_text.queue.clear()
-    s2t.translated_text.queue.clear()
-    s2t.full_transcribed_text.queue.clear()
-    s2t.full_translated_text.queue.clear()
-
-    s2t.messages.put(True)
-
-    recording = Thread(target=s2t.record_microphone)
-    recording.start()
-
-    transcribing = Thread(target=s2t.transcript)
-    transcribing.start()
-
-    translation = Thread(target=s2t.translate)
-    translation.start()
+    s2t.start_recording()
     
     print("started")
     return jsonify({"transcript": "started"})
