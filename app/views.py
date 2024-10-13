@@ -11,7 +11,7 @@ def index():
                            input_languages=s2t.input_languages)
 
 @app.route("/start", methods=["POST"])
-def start_process():
+def start():
     data = request.get_json()
     s2t.input_lang = data.get('inputLanguage')
     s2t.output_lang = data.get('outputLanguage')
@@ -19,8 +19,8 @@ def start_process():
     s2t.recordings.queue.clear()
     s2t.transcribed_text.queue.clear()
     s2t.translated_text.queue.clear()
-    s2t.full_transcribed_text = []
-    s2t.full_translated_text = []
+    s2t.full_transcribed_text.queue.clear()
+    s2t.full_translated_text.queue.clear()
 
     s2t.messages.put(True)
 
@@ -29,8 +29,12 @@ def start_process():
 
     transcribing = Thread(target=s2t.transcript)
     transcribing.start()
+
+    translation = Thread(target=s2t.translate)
+    translation.start()
     
-    return "started recording"
+    print("started")
+    return jsonify({"transcript": "started"})
 
 @app.route("/stop", methods=["POST"])
 def stop_process():
@@ -39,18 +43,30 @@ def stop_process():
 
 @app.route("/transcript", methods=["POST"])
 def transcription():
-
-    a = s2t.transcribed_text.get()
-    translation = Thread(target=s2t.translate, args=(" ".join(s2t.full_transcribed_text), ))
-    translation.start()
-    
-    return jsonify({"transcript": a})
+    isRecording = request.get_json().get("isRecording")
+    print(isRecording, ": isRecording in transcription function/route")
+    if (not s2t.transcribed_text.empty() or not s2t.recordings.empty() or isRecording):
+        a = s2t.full_transcribed_text.get()
+        return jsonify({"transcript": a})
+    return jsonify({"transcript": False})
 
 
 @app.route("/translate", methods=["POST"])
 def translation():
-    a = s2t.translated_text.get()
-    return jsonify({"translation": a})
+    isRecording = request.get_json().get("isRecording")
+    print(isRecording, ": isRecording in translation function/route")
+    if (not s2t.translated_text.empty() or not s2t.transcribed_text.empty() or isRecording):
+        a = s2t.translated_text.get()
+        return jsonify({"translation": a})
+    return jsonify({"translation": False})
 
 
+@app.route('/generate_tts', methods=['POST'])
+def generate_tts():
+    input_text = request.json.get("input")
+    response = request.post("http://127.0.0.1:5001/tts", json={"input": input_text})
 
+    if response.status_code == 200:
+        return jsonify({"message": "TTS generation complete"}), 200
+    
+    return jsonify({"error": "Failed to generate TTS"}), 500

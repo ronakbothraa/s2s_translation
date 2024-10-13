@@ -12,15 +12,15 @@ class SpeechToTranslate:
         self.recordings = Queue()
         self.transcribed_text = Queue()
         self.translated_text = Queue()
-        self.full_translated_text = []
-        self.full_transcribed_text = []
+        self.full_transcribed_text = Queue()
+        self.full_translated_text = Queue()
 
         self.CHANNELS = 1
         self.FRAME_RATE = 16000
         self.RECORD_SECONDS = 3
         self.FORMAT = pyaudio.paInt16
 
-        self.transcription_model = WhisperModel("large-v3", device="cuda" if torch.cuda.is_available() else "cpu", compute_type="float16" if torch.cuda.is_available() else "int8")
+        self.transcription_model = WhisperModel("medium", device="cuda" if torch.cuda.is_available() else "cpu", compute_type="float16" if torch.cuda.is_available() else "int8")
 
         self.tokenizer = AutoTokenizer.from_pretrained("facebook/nllb-200-distilled-600M")
         self.translation_model = AutoModelForSeq2SeqLM.from_pretrained("facebook/nllb-200-distilled-600M")
@@ -57,33 +57,33 @@ class SpeechToTranslate:
         p.terminate()
 
     def transcript(self):
-        while not self.messages.empty():
+        while (not self.messages.empty() or not self.recordings.empty()):
             frames = self.recordings.get()
 
-            with wave.open("audio.wav", 'wb') as wf:
+            audio_file_path = f"saved_audio_files/audio_{len(os.listdir('./saved_audio_files'))}.wav"
+            with wave.open(audio_file_path, 'wb') as wf:
                 wf.setnchannels(self.CHANNELS)
                 wf.setsampwidth(2)
                 wf.setframerate(self.FRAME_RATE)
                 wf.writeframes(b''.join(frames))
 
-            segments, _ = self.transcription_model.transcribe(f'audio.wav', beam_size=5, language=self.input_lang)
+            segments, _ = self.transcription_model.transcribe(audio_file_path, beam_size=5, language=self.input_lang)
             text = " ".join([segment.text for segment in segments])
-            self.full_transcribed_text.append(text)
+            self.full_transcribed_text.put(text)
             self.transcribed_text.put(text)
             print(f"live transcription: ", text)
-            os.remove(f"audio.wav")
 
     def translate(self, trnscrpt=""):
-        inputs = self.tokenizer(trnscrpt, return_tensors="pt", padding=True, truncation=True).to("cuda")
-        inputs = {k: inputs[k].to(self.translation_model.device) for k in inputs}
-        outputs = self.translation_model.generate(**inputs, forced_bos_token_id=self.tokenizer.convert_tokens_to_ids(self.output_lang))
-        outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
-        self.translated_text.put(outputs)
-        self.full_translated_text = [outputs]
+        while (not self.messages.empty() or not self.transcribed_text.empty()):
+            trnscrpt = self.transcribed_text.get()
+            inputs = self.tokenizer(trnscrpt, return_tensors="pt", padding=True, truncation=True).to("cuda")
+            inputs = {k: inputs[k].to(self.translation_model.device) for k in inputs}
+            outputs = self.translation_model.generate(**inputs, forced_bos_token_id=self.tokenizer.convert_tokens_to_ids(self.output_lang))
+            outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
+            self.translated_text.put(outputs)
 
     def stop_recording(self):
         self.messages.get()
-        torch.cuda.empty_cache()
-        print("Speech: ", " ".join(self.full_transcribed_text))
-        print("Translated Text: ", " ".join(self.translated_text))
-        # print("Translated Text: ", " ".join(self.translated_text))
+        # torch.cuda.empty_cache()
+
+        

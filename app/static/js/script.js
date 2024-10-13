@@ -1,4 +1,6 @@
 const recordButton = document.getElementById('recordButton')
+const resetButton = document.getElementById('resetButton')
+const speakButton = document.getElementById('speakButton')
 const transriptDiv = document.getElementById('transcript')
 const translateDiv = document.getElementById('translate')
 const inputLanguage = document.getElementById('inputLanguage')
@@ -9,12 +11,10 @@ translateDiv.textContent = "Translation: "
 document.getElementById("inputLanguage").options[19].selected = 'selected'
 document.getElementById("outputLanguage").options[1].selected = 'selected'
 let isRecording = false
-let full_transcript = 'Transcript: '
 
 recordButton.addEventListener('click', () => {
     isRecording = !isRecording
     if (isRecording) {
-        full_transcript = 'Transcript: '
         transriptDiv.textContent = "Transcript: "
         translateDiv.textContent = "Translation: "
         startRecording()
@@ -29,8 +29,42 @@ recordButton.addEventListener('click', () => {
     }
 })
 
-async function startRecording() {
-    await fetch('/start', {
+
+async function loading_button(button, condition=false, till=0){
+    time = 1;
+    buttonContent = button.innerHTML;
+    
+    button.disabled = true; 
+    button.innerHTML = `Starting: ${time}s`;
+    var timerInterval = setInterval(function () {
+        time++; 
+        button.innerHTML = `Starting: ${time}s`;
+
+        if (!condition && time > till) {
+            clearInterval(timerInterval);
+            button.innerHTML = buttonContent;
+            button.disabled = false;
+        }
+    }, 1000);
+}
+
+speakButton.addEventListener('click', () => {
+    loading_button(speakButton, false, till=5)
+    // output = fetch('/generate_tts', {
+    //     method: 'POST',
+    //     body: JSON.stringify({
+    //         input: translateDiv.textContent
+    //     }),
+    //     headers: {
+    //         'Content-Type': 'application/json'
+    //     },
+    // })
+    // const msg = new SpeechSynthesisUtterance(full_transcript)
+    // window.speechSynthesis.speak(msg)
+})  
+
+function startRecording() {
+    a = fetch('/start', {
         method: 'POST',
         body: JSON.stringify({
             inputLanguage: inputLanguage.options[inputLanguage.selectedIndex].value,
@@ -40,18 +74,27 @@ async function startRecording() {
             'Content-Type': 'application/json'
         },
     })
+    console.log("started")
 }
 
 async function transcript() {
-    while (isRecording) {
+    while (true) {
         const transcript_response = await fetch('/transcript', {
-            method: 'POST'
+            method: 'POST',
+            body: JSON.stringify({
+                isRecording: isRecording
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
         const transcripted_data = await transcript_response.json()
-        console.log("transcripted: ", transcripted_data.transcript)
-        if (transcripted_data.transcript != null) {
-            full_transcript += transcripted_data.transcript
-            transriptDiv.textContent = full_transcript
+        if (transcripted_data.transcript != false) {
+            console.log(transcripted_data)
+            transriptDiv.textContent += transcripted_data.transcript
+        } else {
+            console.log(transcripted_data)
+            break
         }
     }
 }
@@ -59,10 +102,22 @@ async function transcript() {
 async function translate() {
     while (true) {
         const translation_response = await fetch('/translate', {
-            method: 'POST'
+            method: 'POST',
+            body: JSON.stringify({
+                isRecording: isRecording
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
         const translated_data = await translation_response.json()
-        translateDiv.textContent = "Translation: " + translated_data.translation
+        if (translated_data.translation != false) {
+            console.log(translated_data)
+            translateDiv.textContent += translated_data.translation
+        } else {
+            console.log(translated_data)
+            break
+        }
     }
 }
 
