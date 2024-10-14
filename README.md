@@ -8,8 +8,6 @@
 <div align="center">
   
 ## Frameworks and Open Source models that are used
-  
-______________________________________________________________________
 
 [![License](<https://img.shields.io/badge/%20%20License%20%20-8A2BE2>)](https://opensource.org/license/MIT)
 [![Django](<https://img.shields.io/badge/%20%20Django%20%20-8A2BE2>)](https://www.djangoproject.com/)
