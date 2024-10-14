@@ -1,10 +1,13 @@
 ## STST (Speech To Speech Translation)
-- Allows around 55 different language speech input.
-- Around 200 different output languages.
+- Allows around 55 different language speech input
+- Around 200 different output languages
+
+
 
 
 <div align="center">
-Frameworks and Open Source models that are used
+  
+## Frameworks and Open Source models that are used
   
 ______________________________________________________________________
 
