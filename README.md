@@ -4,9 +4,7 @@
 
 
 <div align="center">
-<img src="https://static.scarf.sh/a.png?x-pxid=cf317fe7-2188-4721-bc01-124bb5d5dbb2" />
 **Frameworks and Open Source models that are used**
-
   
 ______________________________________________________________________
 
