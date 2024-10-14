@@ -9,7 +9,7 @@
   ______________________________________________________________________
   
 [![License](<https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg>)](https://opensource.org/license/MIT)
-[![Django](<https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg>)](https://www.djangoproject.com/)
+[![Django](<https://img.shields.io/badge/%20%20Django%20%20-8A2BE2>)](https://www.djangoproject.com/)
 [![PyTorch](<https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg>)](https://pytorch.org/)
 [![Faster-Whisper](<https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg>)]
 [![Meta's NLLB](<https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg>)]
