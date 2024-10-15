@@ -3,6 +3,7 @@ from faster_whisper import WhisperModel
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from queue import Queue
 from threading import Thread
+from pydub import AudioSegment
 
 class SpeechToTranslate:
     def __init__(self, input_lang, output_lang):
@@ -85,6 +86,10 @@ class SpeechToTranslate:
             outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
             self.translated_text.put(outputs)
         
+        # code after this will execute after the translation has stopped. fr.
+        print(f"Translation Completed!")
+        self.merge_audio_files()
+        
     def start_recording(self):
         self.recordings.queue.clear()
         self.transcribed_text.queue.clear()
@@ -106,5 +111,18 @@ class SpeechToTranslate:
     def stop_recording(self):
         self.messages.get()
         # torch.cuda.empty_cache()
+    
+    def merge_audio_files(self):
+        combined_audio = AudioSegment.empty()
+    
+        for file in os.listdir("saved_audio_files"):
+            print(file)
+            audio = AudioSegment.from_wav(f"saved_audio_files/{file}")  
+            combined_audio += audio
+            os.remove(f"saved_audio_files/{file}")              
+
+        # Export the final combined audio to the output file
+        combined_audio.export("saved_audio_files/audio.wav", format="wav")
+        print(f"Combined audio saved as audio.wav")
 
         

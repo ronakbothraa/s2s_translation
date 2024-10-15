@@ -37,7 +37,6 @@ def transcription():
 def translation():
     isRecording = request.get_json().get("isRecording")
     if (not s2t.translated_text.empty() or not s2t.transcribed_text.empty() or isRecording):
-        print("if this is being printed, fix something.")
         a = s2t.translated_text.get()
         return jsonify({"translation": a})
     return jsonify({"translation": False})
