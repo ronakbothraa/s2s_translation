@@ -17,4 +17,5 @@
 [![CoquiTTS](<https://img.shields.io/badge/%20%20CoquiTTS%20%20-8A2BE2>)](https://github.com/coqui-ai/TTS)
 </div>
 
+https://github.com/user-attachments/assets/a176dde6-d473-4694-99e6-fa82bc9501f7
 
