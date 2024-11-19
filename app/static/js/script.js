@@ -12,6 +12,25 @@ document.getElementById("inputLanguage").options[19].selected = 'selected'
 document.getElementById("outputLanguage").options[1].selected = 'selected'
 let isRecording = false
 
+speakButton.addEventListener('click', () => {
+    speak()
+})
+
+async function speak() {
+    const a = await fetch('/tts', {
+        method: 'POST',
+        body: JSON.stringify({
+            translatedData: translateDiv.textContent
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+    const b = await a.json()
+    console.log(b)
+}
+
+
 recordButton.addEventListener('click', () => {
     isRecording = !isRecording
     if (isRecording) {
@@ -32,7 +51,6 @@ recordButton.addEventListener('click', () => {
         resetButton.disabled = false
     }
 })
-
 
 resetButton.addEventListener('click', () => {
     transriptDiv.textContent = "Transcript: "

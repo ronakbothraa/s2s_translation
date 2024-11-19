@@ -124,5 +124,3 @@ class SpeechToTranslate:
         # Export the final combined audio to the output file
         combined_audio.export("saved_audio_files/audio.wav", format="wav")
         print(f"Combined audio saved as audio.wav")
-
-        
